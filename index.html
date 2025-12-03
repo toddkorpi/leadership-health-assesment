@@ -12,28 +12,272 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
-  <!-- Babel for JSX -->
+  <!-- Babel -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide-react/dist/lucide-react.min.js"></script>
 </head>
-
 <body class="bg-slate-900">
   <div id="root"></div>
 
   <script type="text/babel">
-    /* -------------------------------------------
-       INSERT YOUR ENTIRE COMPONENT BELOW
-       (LeadershipHealthAssessment)
-       ------------------------------------------- */
 
-    // 🔥 PASTE YOUR FULL COMPONENT HERE (the massive one you gave me)
+    const { useState } = React;
 
-    // When you're done pasting it, make sure you end with:
-    const root = ReactDOM.createRoot(document.getElementById("root"));
+    function LeadershipHealthAssessment() {
+      const [currentSection, setCurrentSection] = useState('intro');
+      const [responses, setResponses] = useState({});
+      const [results, setResults] = useState(null);
+
+      const healthDimensions = [
+        {
+          id: 'spiritual',
+          name: 'Spiritual Vitality',
+          description: 'Connection to the Presence, dependence on God',
+          questions: [
+            { id: 'sp1', text: 'I maintain regular practices of prayer, silence, and listening to God' },
+            { id: 'sp2', text: 'My leadership flows from intimacy with God rather than performance' },
+            { id: 'sp3', text: 'I regularly take sabbath rest and spiritual retreats' },
+            { id: 'sp4', text: 'I have a spiritual director, mentor, or soul friend who knows me deeply' },
+            { id: 'sp5', text: 'I am honest with God about my struggles, doubts, and weaknesses' }
+          ]
+        },
+        {
+          id: 'relational',
+          name: 'Relational Integrity',
+          description: 'Health of key relationships and emotional connections',
+          questions: [
+            { id: 'rel1', text: 'My closest relationships (spouse, family, friends) are thriving' },
+            { id: 'rel2', text: 'I am able to give and receive feedback with grace' },
+            { id: 'rel3', text: 'There are no unresolved conflicts affecting my leadership' },
+            { id: 'rel4', text: 'I have people in my life who can speak truth to me without fear' },
+            { id: 'rel5', text: 'I invest regularly in deep, non-transactional friendships' }
+          ]
+        },
+        {
+          id: 'emotional',
+          name: 'Emotional Health',
+          description: 'Self-awareness, emotional regulation, and inner freedom',
+          questions: [
+            { id: 'em1', text: 'I am aware of my emotional triggers and patterns' },
+            { id: 'em2', text: 'I do not rely on ministry success to feel valuable' },
+            { id: 'em3', text: 'I acknowledge my limitations without shame' },
+            { id: 'em4', text: 'I am not driven by fear of failure or need for approval' },
+            { id: 'em5', text: 'I experience joy and peace even when ministry is difficult' }
+          ]
+        },
+        {
+          id: 'systemic',
+          name: 'System Integrity',
+          description: 'Organizational health, accountability, governance',
+          questions: [
+            { id: 'sys1', text: 'Our organization has clear accountability structures' },
+            { id: 'sys2', text: 'Decision-making power is appropriately distributed' },
+            { id: 'sys3', text: 'We have mechanisms for early detection of problems' },
+            { id: 'sys4', text: 'All archetypes are represented and valued' },
+            { id: 'sys5', text: 'Our systems serve people, not image or brand' }
+          ]
+        },
+        {
+          id: 'team',
+          name: 'Team Health',
+          description: 'Team dynamics, trust, collaborative culture',
+          questions: [
+            { id: 'tm1', text: 'Our team can have difficult conversations respectfully' },
+            { id: 'tm2', text: 'Team members feel safe to disagree' },
+            { id: 'tm3', text: 'There is genuine trust and minimal politics' },
+            { id: 'tm4', text: 'Prophetic voices are heard, not silenced' },
+            { id: 'tm5', text: 'Burnout is minimal; staff feel supported' }
+          ]
+        },
+        {
+          id: 'shadow',
+          name: 'Shadow Awareness',
+          description: 'Recognition and management of shadow tendencies',
+          questions: [
+            { id: 'sh1', text: 'I know my shadow tendencies and work on them' },
+            { id: 'sh2', text: 'I do not justify unhealthy patterns as “just how I am”' },
+            { id: 'sh3', text: 'When others point out blind spots, I listen' },
+            { id: 'sh4', text: 'I can name ways I’ve grown in self-awareness' },
+            { id: 'sh5', text: 'I have accountability relationships for shadow work' }
+          ]
+        }
+      ];
+
+      const scaleOptions = [
+        { value: 1, label: 'Strongly Disagree' },
+        { value: 2, label: 'Disagree' },
+        { value: 3, label: 'Neutral' },
+        { value: 4, label: 'Agree' },
+        { value: 5, label: 'Strongly Agree' }
+      ];
+
+      const handleResponse = (id, value) => {
+        setResponses(prev => ({ ...prev, [id]: value }));
+      };
+
+      const calculateResults = () => {
+        const dimensionScores = {};
+
+        healthDimensions.forEach(dim => {
+          const vals = dim.questions.map(q => responses[q.id]).filter(v => v !== undefined);
+          const total = vals.reduce((a, b) => a + b, 0);
+          const avg = total / vals.length;
+          const pct = (avg / 5) * 100;
+
+          dimensionScores[dim.id] = {
+            score: avg,
+            percentage: pct,
+            responses: vals.length
+          };
+        });
+
+        const overallAverage = Object.values(dimensionScores)
+          .reduce((sum, dim) => sum + dim.score, 0) / Object.keys(dimensionScores).length;
+
+        const overallPct = (overallAverage / 5) * 100;
+
+        setResults({
+          dimensions: dimensionScores,
+          overall: {
+            score: overallAverage,
+            percentage: overallPct
+          }
+        });
+
+        setCurrentSection('results');
+      };
+
+      if (currentSection === 'intro') {
+        return (
+          <div className="w-full min-h-screen flex items-center justify-center p-6 text-white">
+            <div className="max-w-2xl w-full bg-white/10 p-8 rounded-xl">
+              <h1 className="text-4xl font-bold mb-4 text-center">Leadership Health Assessment</h1>
+              <p className="text-center text-white/70 mb-6">
+                A comprehensive evaluation across six dimensions of leadership health.
+              </p>
+
+              <button
+                onClick={() => setCurrentSection('assessment')}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-4 rounded-lg font-semibold"
+              >
+                Begin Assessment
+              </button>
+
+              <p className="text-center text-white/50 text-sm mt-4">
+                30 questions • Approximately 10 minutes
+              </p>
+            </div>
+          </div>
+        );
+      }
+
+      if (currentSection === 'assessment') {
+        const totalQuestions = healthDimensions.reduce((s, d) => s + d.questions.length, 0);
+        const answered = Object.keys(responses).length;
+        const progress = (answered / totalQuestions) * 100;
+        const canSubmit = answered === totalQuestions;
+
+        return (
+          <div className="w-full min-h-screen p-6 text-white">
+            <div className="max-w-3xl mx-auto">
+
+              <div className="mb-6">
+                <p>{answered} of {totalQuestions} questions answered</p>
+                <div className="w-full bg-white/20 h-2 rounded">
+                  <div className="bg-amber-500 h-2 rounded" style={{ width: progress + '%' }} />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {healthDimensions.map(dim => (
+                  <div key={dim.id} className="bg-white/10 p-4 rounded-xl">
+                    <h2 className="text-xl font-bold mb-2">{dim.name}</h2>
+                    <p className="text-white/60 text-sm mb-4">{dim.description}</p>
+
+                    {dim.questions.map((q, idx) => (
+                      <div key={q.id} className="mb-4 p-3 bg-black/20 rounded">
+                        <p className="mb-2">{idx + 1}. {q.text}</p>
+                        <div className="flex gap-2 flex-wrap">
+                          {scaleOptions.map(opt => (
+                            <button
+                              key={opt.value}
+                              onClick={() => handleResponse(q.id, opt.value)}
+                              className={`px-3 py-2 rounded text-sm ${
+                                responses[q.id] === opt.value
+                                  ? 'bg-amber-500 text-white'
+                                  : 'bg-white/10 text-white/60'
+                              }`}
+                            >
+                              {opt.value}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <button
+                disabled={!canSubmit}
+                onClick={calculateResults}
+                className={`w-full mt-8 py-4 rounded-lg font-semibold ${
+                  canSubmit ? 'bg-amber-500' : 'bg-white/20 text-white/40'
+                }`}
+              >
+                {canSubmit ? 'View Results' : 'Answer all questions to continue'}
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      if (currentSection === 'results') {
+        return (
+          <div className="w-full min-h-screen p-6 text-white">
+            <div className="max-w-4xl mx-auto">
+
+              <h1 className="text-3xl font-bold mb-6 text-center">Your Leadership Health Profile</h1>
+
+              <div className="bg-white/10 p-6 rounded-xl mb-8">
+                <h2 className="text-2xl font-bold mb-2">Overall Health Score</h2>
+                <p className="text-amber-300 text-4xl font-bold">{results.overall.score.toFixed(1)}</p>
+                <p className="text-white/50 text-sm">out of 5.0</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                {healthDimensions.map(dim => (
+                  <div key={dim.id} className="bg-white/10 p-4 rounded-xl">
+                    <h3 className="text-xl font-bold">{dim.name}</h3>
+                    <p className="text-amber-300 text-3xl font-bold">
+                      {results.dimensions[dim.id].score.toFixed(1)}
+                    </p>
+                    <p className="text-white/50 text-sm">out of 5.0</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-center">
+                <button
+                  onClick={() => window.location.reload()}
+                  className="bg-amber-500 text-white py-3 px-6 rounded-lg font-semibold"
+                >
+                  Retake Assessment
+                </button>
+              </div>
+
+            </div>
+          </div>
+        );
+      }
+
+      return null;
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<LeadershipHealthAssessment />);
+
   </script>
+
 </body>
 </html>
-
